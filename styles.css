@@ -1,0 +1,227 @@
+// ============================================
+// FreshMart Supermarket - Complete JavaScript
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Mobile Navigation Toggle
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+    }
+
+    // Smooth Scrolling for Navigation Links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+            // Close mobile menu
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        });
+    });
+
+    // Shopping Cart Functionality
+    let cartCount = 0;
+    const cartCounter = document.querySelector('.cart-count');
+    const addToCartBtns = document.querySelectorAll('.add-to-cart');
+
+    addToCartBtns.forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+            cartCount++;
+            if (cartCounter) {
+                cartCounter.textContent = cartCount;
+            }
+            
+            // Visual feedback
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Added!';
+            btn.style.background = '#2e7d32';
+            btn.style.transform = 'scale(0.98)';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                btn.style.transform = '';
+            }, 1500);
+            
+            // Show cart notification
+            showNotification('Product added to cart!');
+        });
+    });
+
+    // Category Filter (Demo)
+    const categoryCards = document.querySelectorAll('.category-card');
+    categoryCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const category = card.dataset.category;
+            const categoryName = card.querySelector('h3').textContent;
+            
+            // Visual feedback
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                card.style.transform = '';
+            }, 150);
+            
+            showNotification(`Showing ${categoryName} products`);
+            console.log(`Filtering by: ${category}`);
+        });
+    });
+
+    // Search Functionality
+    const searchInput = document.querySelector('.search-box input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (query.length > 2) {
+                showNotification(`Searching for: "${query}"`);
+                console.log('Search query:', query);
+            }
+        });
+    }
+
+    // Contact Form Submission
+    const contactForm = document.querySelector('.contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(contactForm);
+            const name = formData.get('name') || 'Customer';
+            
+            // Simulate form submission
+            contactForm.innerHTML = `
+                <div style="text-align: center; padding: 2rem; background: #d4edda; border-radius: 10px; color: #155724;">
+                    <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h3>Thank you ${name}!</h3>
+                    <p>We'll respond within 24 hours.</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                contactForm.reset();
+                location.reload();
+            }, 3000);
+        });
+    }
+
+    // Header Scroll Effect
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('.header');
+        if (window.scrollY > 100) {
+            header.style.background = 'rgba(255, 255, 255, 0.98)';
+            header.style.backdropFilter = 'blur(20px)';
+            header.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+        } else {
+            header.style.background = '#fff';
+            header.style.backdropFilter = 'none';
+            header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        }
+    });
+
+    // Scroll Animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all animated elements
+    document.querySelectorAll('.category-card, .product-card, .contact-item, .about-text li').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(50px)';
+        el.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        observer.observe(el);
+    });
+
+    // Cart Click Handler
+    const cartIcon = document.querySelector('.cart');
+    if (cartIcon) {
+        cartIcon.addEventListener('click', () => {
+            if (cartCount > 0) {
+                showNotification(`🛒 ${cartCount} items in cart. Checkout now!`);
+            } else {
+                showNotification('Your cart is empty. Start shopping!');
+            }
+        });
+    }
+
+    // Notification System
+    function showNotification(message) {
+        // Remove existing notification
+        const existing = document.querySelector('.notification');
+        if (existing) existing.remove();
+
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            ${message}
+        `;
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateX(400px);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            max-width: 350px;
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            notification.style.transform = 'translateX(0)';
+        });
+
+        // Auto remove
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 400);
+        }, 4000);
+    }
+
+    // Product Hover Effects
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-15px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+
+    console.log('🌟 FreshMart loaded successfully! Cart ready.');
+});
